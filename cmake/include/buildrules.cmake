@@ -1735,6 +1735,40 @@ MACRO(APPLY_PEERDIR_SUBDIR prjname)
     GETTARGETNAME(__location_ ${prjname})
     FILE(APPEND ${TARGET_LIST_FILENAME} "${prjname} ${CURDIR} ${__location_} ${BINDIR}\n")
 
+    # Unittests per directory
+    IF (UT_PERDIR)
+    SET(UT_SRCS)
+    FILE(GLOB UT_SRCS "${CURDIR}/*_ut.cpp" "${CURDIR}/*_ut.c" "${CURDIR}/*_ut.proto")
+
+    # Ignore problem files like .file_ut.cpp ~file_ut.cpp
+    FOREACH(__ut__ ${UT_SRCS})
+        STRING(REGEX MATCH "^.*/((\\.[^/]+)|([^/]*~[^/]+))$" __thrash__ ${__ut__})
+        IF(__thrash__)
+            LIST(REMOVE_ITEM UT_SRCS ${__thrash__})
+        ENDIF(__thrash__)
+    ENDFOREACH(__ut__ ${UT_SRCS})
+
+    SET(UTMAIN_NAME "${SOURCE_ROOT}/yggdrasil/contrib/gtest/src/gtest_main.cc")
+    IF (UT_SRCS AND EXISTS "${UTMAIN_NAME}")
+        SET(UT_DIR ${BINDIR}/${prjname}${UT_SUFFIX}.dir)
+        FILE(MAKE_DIRECTORY ${UT_DIR})
+        SET(UT_PRJNAME ${prjname})
+        IF ("${SAVEDTYPE}" STREQUAL "LIB")
+            FILE(RELATIVE_PATH UT_PERDIR_PEERDIR ${SOURCE_ROOT} ${CURDIR})
+            SET(UT_PERDIR_PEERDIR "PEERDIR(${UT_PERDIR_PEERDIR})")
+            DEBUGMESSAGE(3 "${CURDIR}: UT_PERDIR_PEERDIR[${UT_PERDIR_PEERDIR}]")
+        ENDIF("${SAVEDTYPE}" STREQUAL "LIB")
+        CONFIGURE_FILE(
+            ${SOURCE_ROOT}/yggdrasil/cmake/include/ut_template.cmake
+            ${UT_DIR}/CMakeLists.txt
+            @ONLY
+        )
+        FILE(APPEND ${UNITTEST_LIST_FILENAME} "${UT_DIR};${UT_DIR};")
+    ELSEIF (NOT EXISTS "${UTMAIN_NAME}")
+        MESSAGE(STATUS "\"${UTMAIN_NAME}\" not exists. Per-dir unittests will be disabled")
+    ENDIF (UT_SRCS AND EXISTS "${UTMAIN_NAME}")
+    ENDIF (UT_PERDIR)
+
     IF (UT_PEERDIR)
         MESSAGE(FATAL_ERROR "Variable UT_PEERDIR is wrong. Probably you meant UT_PERDIR")
     ENDIF (UT_PEERDIR)
