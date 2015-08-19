@@ -369,42 +369,6 @@ ELSE ()
     DISABLE(PROFILE)
 ENDIF ()
 
-IF (PERLXS OR PERLXSCPP OR USE_PERL)
-    SET_APPEND(DTMK_D -DUSE_PERL)
-
-    IF (WIN32)
-        SET(PERLLIB ${PERLLIB_PATH}/perl512.lib)
-        IF (NOT EXISTS ${PERLLIB})
-            SET(PERLLIB ${PERLLIB_PATH}/perl510.lib)
-        ENDIF (NOT EXISTS ${PERLLIB})
-        IF (NOT EXISTS ${PERLLIB})
-            SET(PERLLIB ${PERLLIB_PATH}/perl58.lib)
-        ENDIF (NOT EXISTS ${PERLLIB})
-        SET_APPEND(OBJADDE ${PERLLIB})
-    ELSE (WIN32)
-        SET_IF_NOTSET(PERLLIB_BIN "-lperl")
-        SET(LD_PERLLIB -L${PERLLIB_PATH} ${PERLLIB_BIN})
-        IF (DARWIN)
-            SET_APPEND(OBJADDE ${LD_PERLLIB})
-        ELSEIF (PROFILE)
-            SET_APPEND(OBJADDE -L${PERLLIB_PATH}/CORE -lperl_p)
-            SET_APPEND(OBJADDE -lcrypt_p)
-        ELSEIF (SUN)
-            SET_APPEND(OBJADDE
-                -Wl,-Bstatic ${LD_PERLLIB} -Wl,-Bdynamic -lcrypt)
-        ELSEIF (LINK_STATIC_PERL)
-            SET_APPEND(OBJADDE
-                -Wl,-Bstatic ${LD_PERLLIB} -lcrypt -Wl,-Bdynamic)
-        ELSE ()
-            SET_APPEND(OBJADDE ${LD_PERLLIB} -lcrypt -Wl,-E)
-        ENDIF ()
-
-        IF (50809 GREATER ${PERL_VERSION})
-            SET_APPEND(THIRDPARTY_OBJADD ${PERLLIB}/auto/DynaLoader/DynaLoader.a)
-        ENDIF (50809 GREATER ${PERL_VERSION})
-    ENDIF (WIN32)
-ENDIF ()
-
 IF (SUN)
     SET_APPEND(DTMK_D -D_REENTRANT) # for errno
     SET_APPEND(DTMK_D -DMUST_ALIGN -DHAVE_PARAM_H)
@@ -423,15 +387,6 @@ MACRO(add_positive_define varname value)
         ADD_DEFINITIONS(-DUSE_${varname}=${value})
     ENDIF (NEED_${varname})
 ENDMACRO(add_positive_define)
-
-add_positive_define(PERL_GENERATE 1)
-add_positive_define(PERL_GOODWORDS 1)
-add_positive_define(PERL_REQSTAT 1)
-add_positive_define(PERL_HILITESTR 1)
-add_positive_define(PERL_URL2CACHE 1)
-add_positive_define(PERL_GEOTARGET 1)
-add_positive_define(PERL_FILTER 1)
-add_positive_define(PERL_MIRROR 1)
 
 # ============================================================================ #
 
