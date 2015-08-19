@@ -20,10 +20,6 @@ ENDIF (PLATFORM_SUPPORTS_SYMLINKS AND NOT EXISTS "${BINDIR}/SRC" AND NOT NO_SRCL
 
 # =========================================================================== #
 
-SET(OBJDIRPREFIX    "/OBJDIRPREFIX-is-deprecated")
-SET(OBJDIR_SOURCE  "/OBJDIR_SOURCE-is-deprecated")
-SET(CANONICALOBJDIR "/CANONICALOBJDIR-is-deprecated")
-
 SET_IF_NOTSET(PEERLIBS "") # peer libs for current target
 SET_IF_NOTSET(PEERLDADD "")
 SET_IF_NOTSET(OBJADD "")
@@ -132,9 +128,6 @@ IF (WIN32)
     ENDFOREACH(__item_)
 
 ELSE (WIN32)
-    # No configuration types exist in make-environment
-    # SET(CMAKE_CONFIGURATION_TYPES Debug Release)
-
     IF (NOT NO_DEBUGINFO)
         SET(__debug_info_flag_ "-g")
     ELSE (NOT NO_DEBUGINFO)
@@ -162,15 +155,11 @@ ELSE (WIN32)
     SET(CMAKE_C_FLAGS_PROFILE    "${CMAKE_CXX_FLAGS_PROFILE}")
     SET(CMAKE_C_FLAGS_COVERAGE   "${CMAKE_CXX_FLAGS_COVERAGE}")
 
-    # SET(CMAKE_EXE_LINKER_FLAGS_PROFILE    "-static -static-libgcc")
-    # SET(CMAKE_SHARED_LINKER_FLAGS_PROFILE "-static -static-libgcc")
     IF (NO_RDYNAMIC)
         SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
         SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
     ENDIF (NO_RDYNAMIC)
 
-    # These instructions are important when you cross-compile your code,
-    #   for example using distcc (from 32bit to 64bit and vice versa)
     IF (NOT SUN AND NOT "${HARDWARE_TYPE}" MATCHES "mips" AND NOT "${HARDWARE_TYPE}" MATCHES "ia64" AND NOT "${HARDWARE_TYPE}" MATCHES "x86_64")
         SET_APPEND(DTMK_CFLAGS -m32)
     ELSEIF ("${HARDWARE_TYPE}" MATCHES "ia64" OR "${HARDWARE_TYPE}" MATCHES "x86_64")
@@ -180,7 +169,6 @@ ENDIF (WIN32)
 
 IF (${CCVERS} GREATER 30000)
     SET_APPEND(DTMK_CXXFLAGS -Wno-deprecated)
-    #SET_APPEND(MDFLAGS -MP) # no need for gcc depends
 ENDIF (${CCVERS} GREATER 30000)
 
 IF (NOT IS_PATHSCALE)
@@ -192,12 +180,6 @@ ENDIF (NOT IS_PATHSCALE)
 IF (${CCVERS} GREATER 40100 AND ${CCVERS} LESS 40200)
     SET_APPEND(DTMK_CXXFLAGS -Wno-strict-aliasing)
 ENDIF (${CCVERS} GREATER 40100 AND ${CCVERS} LESS 40200)
-
-IF (${CCVERS} GREATER 40400 AND ${CCVERS} LESS 40500)
-    # Suppress a spurious warning: util/generic/yexception.h:37: warning: dereferencing pointer '<anonymous>' does break strict-aliasing rules
-    # It appears to be an instance of the following gcc 4.4 only bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=42488
-    SET_APPEND(DTMK_CXXFLAGS -Wno-strict-aliasing)
-ENDIF (${CCVERS} GREATER 40400 AND ${CCVERS} LESS 40500)
 
 IF (WERROR AND NOT NO_WERROR)
     IF (WIN32)
@@ -227,7 +209,7 @@ IF (NOT OPTIMIZE)
             ENDIF (${CCVERS} GREATER 30400)
         ENDIF (NOT SUN AND NOT "${HARDWARE_TYPE}" MATCHES "ia64" AND NOT "${HARDWARE_TYPE}" MATCHES "x86_64")
         IF (${CCVERS} LESS 40000)
-            SET(OPTIMIZE ${OPTIMIZE} -O3 -DNDEBUG) #-finline-limit=40)
+            SET(OPTIMIZE ${OPTIMIZE} -O3 -DNDEBUG)
             IF (SPARC)
                 SET_APPEND(OPTIMIZE -mcpu=ultrasparc)
             ENDIF (SPARC)
@@ -257,8 +239,6 @@ IF (SAVE_TEMPS AND NOT WIN32)
     SET_APPEND(DTMK_CFLAGS -save-temps)
 ENDIF (SAVE_TEMPS AND NOT WIN32)
 
-# =================================
-# define Coverage and Profile build types
 
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 
@@ -279,28 +259,6 @@ ENDIF (DEFINED USEMPROF OR DEFINED USE_MPROF)
 IF (DEFINED USE_THREADS AND "${USE_THREADS}" MATCHES "no")
     SET(USE_THREADS)
 ENDIF (DEFINED USE_THREADS AND "${USE_THREADS}" MATCHES "no")
-
-IF (USE_LIBBIND AND NOT NO_LIBBIND AND USE_THREADS)
-    IF (FREEBSD_VER)
-        SET_IF_NOTSET(BINDDIR /usr/local/bind-f4)
-    ENDIF (FREEBSD_VER)
-    IF (DEFINED BINDDIR AND NOT BINDDIR)
-        SET(BINDDIR)
-    ENDIF (DEFINED BINDDIR AND NOT BINDDIR)
-    IF (BINDDIR)
-        IF (NOT EXISTS ${BINDDIR}/include/bind/resolv.h)
-            MESSAGE("dtmk.cmake warning: bind not found at ${BINDDIR}, use ENABLE(NO_LIBBIND) in local.cmake if libbind is not needed")
-        ELSE (NOT EXISTS ${BINDDIR}/include/bind/resolv.h)
-            SET_APPEND(OBJADDE ${LINK_WLBSTATIC_BEGIN} -L${BINDDIR}/lib -lbind_r ${LINK_WLBSTATIC_END})
-            SET_APPEND(DTMK_D -DBIND_LIB)
-            SET_APPEND(DTMK_I ${BINDDIR}/include/bind)
-        ENDIF (NOT EXISTS ${BINDDIR}/include/bind/resolv.h)
-    ENDIF (BINDDIR)
-ENDIF (USE_LIBBIND AND NOT NO_LIBBIND AND USE_THREADS)
-
-IF (USE_LIBBIND AND NO_LIBBIND)
-    MESSAGE(STATUS "dtmk.cmake warning: NO_LIBBIND and USE_LIBBIND are positive. LIBBIND functionality is disabled since now. Please fix your project (${CURDIR})")
-ENDIF (USE_LIBBIND AND NO_LIBBIND)
 
 IF ("${CMAKE_BUILD_TYPE}" STREQUAL "valgrind" OR "${CMAKE_BUILD_TYPE}" STREQUAL "Valgrind")
     SET (WITH_VALGRIND 1)
@@ -323,19 +281,10 @@ ENDIF (USEMEMGUARD OR USE_MEMGUARD)
 
 IF (NOT WIN32)
     IF (USE_THREADS)
-        #SET_APPEND(OBJADDE ${LINK_WLBSTATIC_BEGIN} ${THREADLIB} ${LINK_WLBSTATIC_END})
         SET_APPEND(OBJADDE ${THREADLIB})
         SET_APPEND(DTMK_D -D_THREAD_SAFE -D_PTHREADS -D_REENTRANT)
     ENDIF (USE_THREADS)
 ENDIF (NOT WIN32)
-
-IF (USE_BERKELEY OR USE_BERKELEYDB)
-    SET_IF_NOTSET(BERKELEYDB /usr/local/db3.3)
-    SET_IF_NOTSET(BERKELEYDB_INCLUDE ${BERKELEYDB}/include)
-    SET_IF_NOTSET(BERKELEYDB_LIB -L${BERKELEYDB}/lib -ldb)
-    SET_APPEND(DTMK_I ${BERKELEYDB_INCLUDE})
-    SET_APPEND(THIRDPARTY_OBJADD ${BERKELEYDB_LIB})
-ENDIF (USE_BERKELEY OR USE_BERKELEYDB)
 
 IF (NOT LINUX AND NOT SUN)
     SET_IF_NOTSET(USE_ICONV yes)
@@ -354,15 +303,6 @@ IF (USE_BOOST)
     SET_APPEND(OBJADDE -L${BOOSTDIR}/lib)
 ENDIF (USE_BOOST)
 
-IF (USE_LUA)
-    SET_APPEND(DTMK_D -DUSE_LUA)
-ENDIF (USE_LUA)
-
-IF (USE_PYTHON)
-    SET_APPEND(DTMK_D -DUSE_PYTHON)
-#   SET_IF_NOTSET(PYTHON_VERSION 2.4)
-ENDIF (USE_PYTHON)
-
 IF ("${CMAKE_BUILD_TYPE}" STREQUAL "profile" OR "${CMAKE_BUILD_TYPE}" STREQUAL "Profile" )
     ENABLE(PROFILE)
 ELSE ()
@@ -370,7 +310,7 @@ ELSE ()
 ENDIF ()
 
 IF (SUN)
-    SET_APPEND(DTMK_D -D_REENTRANT) # for errno
+    SET_APPEND(DTMK_D -D_REENTRANT)
     SET_APPEND(DTMK_D -DMUST_ALIGN -DHAVE_PARAM_H)
     SET_APPEND(LIBS -lnsl -lsocket -ldl -lresolv)
 ELSEIF (LINUX)
@@ -480,17 +420,7 @@ IF (MAKE_ONLY_STATIC_LIB0 AND MAKE_ONLY_SHARED_LIB0)
     MESSAGE(SEND_ERROR "MAKE_ONLY_SHARED_LIB and MAKE_ONLY_STATIC_LIB should not be used simultaneously (@ ${CMAKE_CURRENT_SOURCE_DIR})")
 ENDIF (MAKE_ONLY_STATIC_LIB0 AND MAKE_ONLY_SHARED_LIB0)
 
-# =============================================================================================================================== #
-# Здесь добавляются для каждого рума
-#    - корневая директория аркадии
-#    - директория объектников аркадии.
-#
-#FOREACH (CR ${ROOMS})
-#   SET_APPEND(DTMK_I ${CR}/arcadia)
-#   SET_APPEND(DTMK_I ${OBJDIRPREFIX}/${CR}/arcadia)
-#ENDFOREACH(CR)
 
-# Заменяем это всё на:
 SET_APPEND(DTMK_I ${SOURCE_ROOT} ${SOURCE_BUILD_ROOT})
 
 IF (PEERDIR)
@@ -573,23 +503,6 @@ IF (PEERDIR)
     DEBUGMESSAGE(3 "PEERLDADD ${PEERLDADD} in ${CMAKE_CURRENT_SOURCE_DIR}")
 ENDIF (PEERDIR)
 
-# TODO: make custom target for the unittests
-
-#.if make(unittests) || make(clean)
-#SRCDIR += unittest/lib
-#SRCS1 != ls $(.CURDIR)/*_ut.cpp 2>&1 | grep -v "No such file or directory" | sed -e 's/.*\///'
-#SRCS1 += utmain.cpp
-#.if make(unittests)
-#VARI =
-#SRCS += $(SRCS1)
-#OBJS = ${SRCS:N*.h:R:S/$/.o/g}
-#CREATEPROG ?= $(LIB)
-#.endif
-#CLEANFILES += ${SRCS1:N*.h:R:S/$/.o/g} ${SRCS1:N*.h:R:S/$/.d/g}
-#.if defined(LIB)
-#CLEANFILES += $(LIB) $(.CURDIR)/$(LIB)
-#.endif
-#.endif
 
 IF (SRCDIR)
     FOREACH (DIR ${SRCDIR})
@@ -636,11 +549,6 @@ FOREACH (DIR ${SUBDIR})
     ENDIF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${DIR})
 ENDFOREACH (DIR)
 
-#.ifdef TRSS
-#RSRS += ${TRSS:N*.h:R:S/$/.rsr/g}
-
-#all release coverage check: $(RSRS)
-#.endif
 
 SEPARATE_ARGUMENTS_SPACE(PEERLDADD)
 

@@ -2,12 +2,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 CMAKE_POLICY(VERSION 2.6.0)
 
 SET(SOURCE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-MESSAGE ("Source root is ${SOURCE_ROOT}")
 
 GET_FILENAME_COMPONENT(__cmake_incdir_ "${CMAKE_CURRENT_LIST_FILE}" PATH)
-MESSAGE ("cmake include dir is ${__cmake_incdir_}")
 
 INCLUDE(${__cmake_incdir_}/global.cmake NO_POLICY_SCOPE)
+
 
 IF (MAKE_ONLY)
     SET(__to_make_)
@@ -32,6 +31,7 @@ ELSE (MAKE_ONLY)
     )
 ENDIF (MAKE_ONLY)
 
+
 FILE(READ ${UNITTEST_LIST_FILENAME} __ut_list_)
 SET(__ut_srcdir_)
 FOREACH (__ut_item_ ${__ut_list_})
@@ -42,5 +42,6 @@ FOREACH (__ut_item_ ${__ut_list_})
         SET(__ut_srcdir_ ${__ut_item_})
     ENDIF (__ut_srcdir_)
 ENDFOREACH (__ut_item_)
+
 
 INCLUDE(${__cmake_incdir_}/dtmk.cmake)
