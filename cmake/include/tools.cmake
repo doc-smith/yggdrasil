@@ -246,7 +246,7 @@ ENDIF (NOT GCC_FULLLIBDIR AND NOT WIN32)
 IF (NOT DEFINED NATIVE_INCLUDE_PATH)
     IF (NOT WIN32)
         EXECUTE_PROCESS(
-            COMMAND ${CMAKE_CXX_COMPILER} -v "${ARCADIA_ROOT}/cmake/include/fict_exe_source.cpp" -o "${CMAKE_CURRENT_BINARY_DIR}/gcctest.out"
+            COMMAND ${CMAKE_CXX_COMPILER} -v "${SOURCE_ROOT}/cmake/include/fict_exe_source.cpp" -o "${CMAKE_CURRENT_BINARY_DIR}/gcctest.out"
             OUTPUT_QUIET
             ERROR_VARIABLE GCC_OUT
             ERROR_STRIP_TRAILING_WHITESPACE

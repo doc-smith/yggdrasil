@@ -1,11 +1,11 @@
-IF (NOT ARCADIA_ROOT)
-    MESSAGE(FATAL_ERROR "ARCADIA_ROOT is not defined")
-ENDIF (NOT ARCADIA_ROOT)
+IF (NOT SOURCE_ROOT)
+    MESSAGE(FATAL_ERROR "SOURCE_ROOT is not defined")
+ENDIF (NOT SOURCE_ROOT)
 
-INCLUDE(${ARCADIA_ROOT}/cmake/include/dtmk.cmake)
+INCLUDE(${SOURCE_ROOT}/cmake/include/dtmk.cmake)
 
 IF (WIN32)
-    SET(TOUCH_CMD ${ARCADIA_ROOT}/cmake/include/touch.py)
+    SET(TOUCH_CMD ${SOURCE_ROOT}/cmake/include/touch.py)
 ELSE ()
     SET(TOUCH_CMD touch)
 ENDIF ()
@@ -102,7 +102,7 @@ MACRO (PEERDIR)
             SET(__next_addincl_ yes)
         ELSE ("${__item_}" STREQUAL "ADDINCL")
             SET_APPEND(__peerdirs_ ${__item_})
-            FILE( GLOB __realdir_ ${ARCADIA_ROOT}/${__item_} )
+            FILE( GLOB __realdir_ ${SOURCE_ROOT}/${__item_} )
             IF(__realdir_)
                 DEBUGMESSAGE(3 "PEERDIR( ${__item_} ) is found (${__realdir_})")
             ELSE(__realdir_)
@@ -110,7 +110,7 @@ MACRO (PEERDIR)
             ENDIF(__realdir_)
 
             IF (__next_addincl_)
-                SET_APPEND(DTMK_I ${ARCADIA_ROOT}/${__item_} ${ARCADIA_BUILD_ROOT}/${__item_})
+                SET_APPEND(DTMK_I ${SOURCE_ROOT}/${__item_} ${SOURCE_BUILD_ROOT}/${__item_})
                 SET(__next_addincl_)
             ENDIF (__next_addincl_)
         ENDIF ("${__item_}" STREQUAL "ADDINCL")
@@ -179,7 +179,7 @@ ENDMACRO (SRCDIR)
 
 MACRO (ADDINCL)
     FOREACH(__item_ ${ARGN})
-        SET_APPEND(DTMK_I ${ARCADIA_ROOT}/${__item_} ${ARCADIA_BUILD_ROOT}/${__item_})
+        SET_APPEND(DTMK_I ${SOURCE_ROOT}/${__item_} ${SOURCE_BUILD_ROOT}/${__item_})
     ENDFOREACH(__item_)
 ENDMACRO (ADDINCL)
 
@@ -279,7 +279,7 @@ ENDMACRO (RECURSE)
 # listed variables is positive. NOBUILD has more priority.
 #
 #   See ${EXCLTARGET_LIST_FILENAME} for a list of excluded targets after
-# cmake configure stage (defaulted to ${ARCADIA_BUILD_ROOT}/excl_target.list).
+# cmake configure stage (defaulted to ${SOURCE_BUILD_ROOT}/excl_target.list).
 
 MACRO(BUILD)
     SET_APPEND(BUILD_WHEN_VARS ${ARGN})
@@ -319,7 +319,7 @@ MACRO (ENTER_PROJECT)
         IF (ARGN)
             SET(__prjname_ ${ARGN})
         ELSE (ARGN)
-            FILE(RELATIVE_PATH __var_ "${ARCADIA_ROOT}" "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt")
+            FILE(RELATIVE_PATH __var_ "${SOURCE_ROOT}" "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt")
             GET_FILENAME_COMPONENT(__prjname_ ${__var_} PATH)
         ENDIF (ARGN)
         SET(CURPROJSTACK ${__prjname_} ${CURPROJSTACK})
@@ -342,9 +342,9 @@ ENDMACRO (LEAVE_PROJECT)
 # This macro checks whether a directory contains metalibrary structure
 MACRO (IS_METALIBRARY result_varname path)
     SET(${result_varname} no)
-    IF (1 AND EXISTS ${ARCADIA_ROOT}/${path}/${METALIBRARY_NAME} AND NOT EXISTS ${ARCADIA_ROOT}/${path}/CMakeLists.txt)
+    IF (1 AND EXISTS ${SOURCE_ROOT}/${path}/${METALIBRARY_NAME} AND NOT EXISTS ${SOURCE_ROOT}/${path}/CMakeLists.txt)
         SET(${result_varname} yes)
-    ENDIF (1 AND EXISTS ${ARCADIA_ROOT}/${path}/${METALIBRARY_NAME} AND NOT EXISTS ${ARCADIA_ROOT}/${path}/CMakeLists.txt)
+    ENDIF (1 AND EXISTS ${SOURCE_ROOT}/${path}/${METALIBRARY_NAME} AND NOT EXISTS ${SOURCE_ROOT}/${path}/CMakeLists.txt)
 ENDMACRO (IS_METALIBRARY)
 
 
@@ -376,7 +376,7 @@ MACRO (ADD_ARC_DIRS var_to_remove __dirtype_)
             SET_APPEND(ADD_PEERDIR ${__item_})
             DEBUGMESSAGE(1 "Metalib in ${__item_}")
         ELSE ()
-            ADD_SUBDIRECTORY_EX(${ARCADIA_ROOT}/${__item_} ${ARCADIA_BUILD_ROOT}/${__item_})
+            ADD_SUBDIRECTORY_EX(${SOURCE_ROOT}/${__item_} ${SOURCE_BUILD_ROOT}/${__item_})
         ENDIF ()
     ENDFOREACH(__item_)
     SET(PEERDIR ${__peerdir_})
@@ -390,7 +390,7 @@ MACRO (ADD_ARC_DIRS var_to_remove __dirtype_)
     ENDIF (ADD_PEERDIR)
 
     FOREACH(__item_ ${ADD_PEERDIR})
-        SET(__metadir_ ${ARCADIA_ROOT}/${__item_})
+        SET(__metadir_ ${SOURCE_ROOT}/${__item_})
         SET(__metaname_ ${__metadir_}/${METALIBRARY_NAME})
         SAVE_VARIABLES(SAVEDNAME PROJECT_DEFINED)
         DEBUGMESSAGE(2 "METALIBRARY: INCLUDE(${__metaname_} @ ${CURDIR}")
@@ -444,7 +444,7 @@ MACRO (ADD_SUBDIRECTORY_EX srcdir bindir)
             DEBUGMESSAGE(2 "=====!! File [${srcdir}/CMakeLists.txt] does not exist. Skipping")
         ELSE (NOT EXISTS ${srcdir}/CMakeLists.txt)
             # check if subdir is excluded due to cmake errors
-            STRING(REPLACE ${ARCADIA_ROOT}/ "" canonpath ${srcdir})
+            STRING(REPLACE ${SOURCE_ROOT}/ "" canonpath ${srcdir})
             LIST(FIND EXCLUDE_PROJECTS ${canonpath} exclude_idx)
             IF (exclude_idx LESS 0) # i.e. canonpath is not in exclude list
                 FILE(APPEND ${PROCESSED_DIRS_FILE} "X${srcdir}X;")
@@ -612,7 +612,7 @@ ENDMACRO (PROJECT_EX)
 
 MACRO (OWNER name)
     IF (USE_OWNERS)
-        FILE(RELATIVE_PATH rp ${ARCADIA_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
+        FILE(RELATIVE_PATH rp ${SOURCE_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
         FILE (APPEND ${PROCESSED_OWNERS_FILE} "${rp}\t${name}\n")
         SET(rp)
     ENDIF (USE_OWNERS)
@@ -626,7 +626,7 @@ MACRO (UNIT type)
     IF (len)
         LIST(GET q 0 name)
     ELSE (len)
-        FILE(RELATIVE_PATH path "${ARCADIA_ROOT}" "${CMAKE_CURRENT_SOURCE_DIR}")
+        FILE(RELATIVE_PATH path "${SOURCE_ROOT}" "${CMAKE_CURRENT_SOURCE_DIR}")
         STRING(REGEX REPLACE ".*/" "" name ${path})
         SET(path)
     ENDIF (len)
@@ -1181,7 +1181,7 @@ MACRO(lorder_for_peerlibs prjname peerlibs_var peerdepends_var sources_var)
                 COMMAND echo "Good libraries order:" && lorder ${${peerlibs_var}} | tsort 2>/dev/null 1>${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp || true
                 COMMAND cat ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
                 COMMAND ${RM} ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
-                COMMAND cp ${ARCADIA_ROOT}/cmake/include/_cmake_fake_src.cpp ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
+                COMMAND cp ${SOURCE_ROOT}/cmake/include/_cmake_fake_src.cpp ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
                 DEPENDS ${${peerdepends_var}}
                 COMMENT "lorder+tsort for peerlibs of ${prjname}"
             )
@@ -1297,7 +1297,7 @@ MACRO(SET_IDE_FOLDER target)
             IF (len)
                 SET_PROPERTY(TARGET "${target}" PROPERTY FOLDER "${IDE_FOLDER}")
             ELSE (len)
-                FILE(RELATIVE_PATH rp ${ARCADIA_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
+                FILE(RELATIVE_PATH rp ${SOURCE_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
                 STRING(REGEX REPLACE "(.*)/.*" "\\1" rp ${rp})
                 SET_PROPERTY(TARGET "${target}" PROPERTY FOLDER "${rp}")
             ENDIF (len)
@@ -1315,7 +1315,7 @@ MACRO (ADD_EXECUTABLE_EX exename)
         STRIP_KEYWORDS(__sources_1 __keywords_ ${ARGN})
         SEPARATE_ARGUMENTS(__sources_1)
         IF (__sources_1)
-            PREPARE_SRC_FILES(__sources_1 SRCDIR ${ARCADIA_ROOT})
+            PREPARE_SRC_FILES(__sources_1 SRCDIR ${SOURCE_ROOT})
             _APPLY_DEFS(${__sources_1})
 
             lorder_for_peerlibs(${exename} PEERLIBS PEERDEPENDS __sources_1)
@@ -1381,7 +1381,7 @@ MACRO (ADD_EXECUTABLE_EX exename)
 
         DEBUGMESSAGE(1 "ADD_EXECUTABLE_EX(${exename}) @ ${CMAKE_CURRENT_SOURCE_DIR} succeeded")
     ELSE (NOT __nobuild_)
-        DEBUGMESSAGE(1 "ADD_EXECUTABLE_EX(${exename}) @ ${CMAKE_CURRENT_SOURCE_DIR} skipped (see '${ARCADIA_BUILD_ROOT}/excl_target.list' for details)")
+        DEBUGMESSAGE(1 "ADD_EXECUTABLE_EX(${exename}) @ ${CMAKE_CURRENT_SOURCE_DIR} skipped (see '${SOURCE_BUILD_ROOT}/excl_target.list' for details)")
     ENDIF (NOT __nobuild_)
 
     ON_TARGET_FINISH()
@@ -1397,12 +1397,12 @@ MACRO (ADD_LIBRARY_EX libname)
         STRIP_KEYWORDS(__sources_1 __keywords_ ${ARGN})
         SEPARATE_ARGUMENTS(__sources_1)
         IF (NOT __sources_1 AND PEERDIR)
-            SET_APPEND(__sources_1 "${ARCADIA_ROOT}/cmake/include/_cmake_fake_src.cpp")
+            SET_APPEND(__sources_1 "${SOURCE_ROOT}/cmake/include/_cmake_fake_src.cpp")
             DEBUGMESSAGE(2 "Adding fictive source file to library ${PROJECTNAME} to inherit PEERDIRs")
         ENDIF (NOT __sources_1 AND PEERDIR)
         IF (__sources_1)
 
-            PREPARE_SRC_FILES(__sources_1 SRCDIR ${ARCADIA_ROOT})
+            PREPARE_SRC_FILES(__sources_1 SRCDIR ${SOURCE_ROOT})
 
             _APPLY_DEFS(${__sources_1})
 
@@ -1550,7 +1550,7 @@ MACRO (ADD_LIBRARY_EX libname)
             DEBUGMESSAGE(1 "ADD_LIBRARY_EX(${libname} ${DTMK_LIBTYPE}) @ ${CMAKE_CURRENT_SOURCE_DIR}: no sources found. No libraries will be added")
         ENDIF (__sources_1)
     ELSE (NOT __nobuild_)
-        DEBUGMESSAGE(1 "ADD_LIBRARY_EX(${libname} ${DTMK_LIBTYPE}) @ ${CMAKE_CURRENT_SOURCE_DIR} skipped (see '${ARCADIA_BUILD_ROOT}/excl_target.list' for details)")
+        DEBUGMESSAGE(1 "ADD_LIBRARY_EX(${libname} ${DTMK_LIBTYPE}) @ ${CMAKE_CURRENT_SOURCE_DIR} skipped (see '${SOURCE_BUILD_ROOT}/excl_target.list' for details)")
     ENDIF (NOT __nobuild_)
 
     ON_TARGET_FINISH()
@@ -1667,7 +1667,7 @@ MACRO(APPLY_PEERDIR_SUBDIR prjname)
                 ENDIF (NOT "${__p1_}X" MATCHES "_picX$")
                 
             ELSE ("X${${__p_}_WEAKNAME_LIB}X" STREQUAL "XX")
-                GET_GLOBAL_DIRNAME(__dir_ ${ARCADIA_ROOT}/${${__p_}_WEAKNAME_LIB})
+                GET_GLOBAL_DIRNAME(__dir_ ${SOURCE_ROOT}/${${__p_}_WEAKNAME_LIB})
                 SET(__w_ ${${__dir_}_DEPENDNAME_LIB})
                 LIST(FIND __peers_ "${__w_}" __pos_)
                 IF (__pos_ EQUAL -1)
@@ -1760,7 +1760,7 @@ MACRO (ADD_EXECUTABLE_FICT exename)
 
     ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${exename}_fict_source.cpp
-        COMMAND cp ${ARCADIA_ROOT}/cmake/include/fict_exe_source.cpp ${CMAKE_CURRENT_BINARY_DIR}/${exename}_fict_source.cpp
+        COMMAND cp ${SOURCE_ROOT}/cmake/include/fict_exe_source.cpp ${CMAKE_CURRENT_BINARY_DIR}/${exename}_fict_source.cpp
         DEPENDS ${__targets_}
         COMMENT "All DEPENDS for ${exename} are ready. Preparing fictive source..."
         )
@@ -1812,13 +1812,13 @@ ENDMACRO (CREATE_SHARED_LIBRARY)
 # This macro should be just before the PROJECT_EX directive
 #
 MACRO (INIT_CONFIG)
-    FILE(RELATIVE_PATH __var_ "${CMAKE_CURRENT_SOURCE_DIR}" "${ARCADIA_ROOT}/CMakeLists.txt")
+    FILE(RELATIVE_PATH __var_ "${CMAKE_CURRENT_SOURCE_DIR}" "${SOURCE_ROOT}/CMakeLists.txt")
     GET_FILENAME_COMPONENT(__var_ ${__var_} PATH)
     DEBUGMESSAGE(4 "PathToRoot[${__var_}] for ${CMAKE_CURRENT_SOURCE_DIR}")
 
     SET(PATH_TO_ROOT ${__var_})
 
-    INCLUDE_FROM(local.cmake ${ARCADIA_ROOT}/.. ${ARCADIA_ROOT} ${ARCADIA_BUILD_ROOT}/.. ${ARCADIA_BUILD_ROOT})
+    INCLUDE_FROM(local.cmake ${SOURCE_ROOT}/.. ${SOURCE_ROOT} ${SOURCE_BUILD_ROOT}/.. ${SOURCE_BUILD_ROOT})
 ENDMACRO (INIT_CONFIG)
 
 
