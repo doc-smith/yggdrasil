@@ -250,11 +250,6 @@ SET(__filenames_
     UNITTEST_LIST_FILENAME unittest.list
 )
 
-SET_IF_NOTSET(USE_OWNERS yes)
-IF (USE_OWNERS)
-    SET_APPEND(__filenames_ PROCESSED_OWNERS_FILE owners.list)
-ENDIF (USE_OWNERS)
-
 SET(__filename_)
 FOREACH (__item_ ${__filenames_})
     IF (DEFINED __filename_)
