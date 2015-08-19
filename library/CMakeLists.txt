@@ -1,3 +1,0 @@
-RECURSE (
-    test_library
-)
