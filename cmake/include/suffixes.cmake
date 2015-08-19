@@ -21,7 +21,8 @@ ENDMACRO (BUILD_S_FILE)
 
 MACRO (BUILD_CUDA_FILE srcfile dstfile)
     SET(NVCC nvcc)
-    #    SET(NVCCOPTS --compiler-options -fno-strict-aliasing -I. -I/usr/local/cuda/SDK/common/inc -I/usr/local/cuda/include -DUNIX -O3)
+# FIXME
+    SET(NVCCOPTS "")
     ADD_CUSTOM_COMMAND(
         OUTPUT ${dstfile}
         COMMAND ${NVCC} ${NVCCOPTS} -c ${srcfile} -o ${dstfile}
@@ -33,6 +34,7 @@ MACRO (BUILD_CUDA_FILE srcfile dstfile)
     SOURCE_GROUP("Custom Builds" FILES ${srcfile})
     SOURCE_GROUP("Generated" FILES ${dstfile})
     SRCS(${dstfile})
+# FIXME
     #    CFLAGS(-fno-strict-aliasing -I/usr/local/cuda/SDK/common/inc -I/usr/local/cuda/include -DUNIX)
     SET_APPEND(DTMK_L -L/usr/local/cuda/lib -lcudart)
 ENDMACRO (BUILD_CUDA_FILE)
