@@ -501,7 +501,7 @@ IF (PEERDIR)
         # Reorder PEERDIR according to LIBORDER_FILE's order
         EXECUTE_PROCESS(
             COMMAND echo "${PEERDIR}"
-            COMMAND ${AWK} -v "peerdir=${PEERDIR}" -v statfile=${SOURCE_ROOT}/cmake/build/alllibs -f ${SOURCE_ROOT}/cmake/include/sortpeerlibs.awk "${LIBORDER_FILE}"
+            COMMAND ${AWK} -v "peerdir=${PEERDIR}" -v statfile=${SOURCE_ROOT}/yggdrasil/cmake/build/alllibs -f ${SOURCE_ROOT}/yggdrasil/cmake/include/sortpeerlibs.awk "${LIBORDER_FILE}"
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE
             OUTPUT_VARIABLE NEW_PEERDIR

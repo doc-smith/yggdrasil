@@ -2,10 +2,10 @@ IF (NOT SOURCE_ROOT)
     MESSAGE(FATAL_ERROR "SOURCE_ROOT is not defined")
 ENDIF (NOT SOURCE_ROOT)
 
-INCLUDE(${SOURCE_ROOT}/cmake/include/dtmk.cmake)
+INCLUDE(${SOURCE_ROOT}/yggdrasil/cmake/include/dtmk.cmake)
 
 IF (WIN32)
-    SET(TOUCH_CMD ${SOURCE_ROOT}/cmake/include/touch.py)
+    SET(TOUCH_CMD ${SOURCE_ROOT}/yggdrasil/cmake/include/touch.py)
 ELSE ()
     SET(TOUCH_CMD touch)
 ENDIF ()
@@ -1172,7 +1172,7 @@ MACRO(lorder_for_peerlibs prjname peerlibs_var peerdepends_var sources_var)
                 COMMAND echo "Good libraries order:" && lorder ${${peerlibs_var}} | tsort 2>/dev/null 1>${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp || true
                 COMMAND cat ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
                 COMMAND ${RM} ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
-                COMMAND cp ${SOURCE_ROOT}/cmake/include/_cmake_fake_src.cpp ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
+                COMMAND cp ${SOURCE_ROOT}/yggdrasil/cmake/include/_cmake_fake_src.cpp ${CMAKE_CURRENT_BINARY_DIR}/_cmake_fake_src.cpp
                 DEPENDS ${${peerdepends_var}}
                 COMMENT "lorder+tsort for peerlibs of ${prjname}"
             )
