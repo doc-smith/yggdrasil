@@ -7,6 +7,7 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/include/global.cmake NO_POLICY_SCOPE)
 
 
 SET(ROOT_PROJECTS
+    another_test_project
     library
     test_project
 )
@@ -18,11 +19,11 @@ IF (MAKE_ONLY)
         IF ("${__item_}" STREQUAL "all")
             SET_APPEND(__to_make_ ${ROOT_PROJECTS})
         ELSE ("${__item_}" STREQUAL "all")
-            IF (NOT EXISTS ${ARCADIA_ROOT}/${__item_})
+            IF (NOT EXISTS ${SOURCE_ROOT}/${__item_})
                 MESSAGE(SEND_ERROR "Directory \"${__item_}\" (listed in MAKE_ONLY) does not exist.")
-            ELSE (NOT EXISTS ${ARCADIA_ROOT}/${__item_})
+            ELSE (NOT EXISTS ${SOURCE_ROOT}/${__item_})
                 SET_APPEND(__to_make_ ${__item_})
-            ENDIF (NOT EXISTS ${ARCADIA_ROOT}/${__item_})
+            ENDIF (NOT EXISTS ${SOURCE_ROOT}/${__item_})
         ENDIF ("${__item_}" STREQUAL "all")
     ENDFOREACH(__item_ ${MAKE_ONLY})
     IF (__to_make_)
