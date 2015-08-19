@@ -724,7 +724,7 @@ IF (SRCS)
                     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${src_file_path}/@@${src_file_name}${src_file_ext}.gcov
                     PRE_BUILD
                     COMMAND echo "=====> SOURCE: " ${src_file} >>${GCOV_OUT_FNAME}
-                    COMMAND echo "=====> GCOV OUT DIR: "${CMAKE_CURRENT_BINARY_DIR} >>${GCOV_OUT_FNAME}
+                    COMMAND echo "=====> GCOV OUT DIR: " ${CMAKE_CURRENT_BINARY_DIR} >>${GCOV_OUT_FNAME}
 
                     COMMAND ${GCOV} ${GCOV_OPTIONS} -o ${src_file_path}/${src_file_name}_c.o ${src_file} >>${GCOV_OUT_FNAME} 2>&1
                     DEPENDS ${src_file_path}/${src_file_name}_c.gcno ${src_file_path}/${src_file_name}_c.gcda

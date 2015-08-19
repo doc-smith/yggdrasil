@@ -19,6 +19,8 @@ IF (COMMAND cmake_policy)
     cmake_policy(SET CMP0000 OLD)
     cmake_policy(SET CMP0005 OLD)
     cmake_policy(SET CMP0003 NEW)
+    cmake_policy(SET CMP0026 OLD)
+    cmake_policy(SET CMP0045 OLD)
 ENDIF(COMMAND cmake_policy)
 
 IF (NOT DEFINED DEBUG_MESSAGE_LEVEL AND DEFINED DML)
