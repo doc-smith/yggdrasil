@@ -7,6 +7,7 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/include/global.cmake NO_POLICY_SCOPE)
 
 
 SET(ROOT_PROJECTS
+    library
     test_project
 )
 
